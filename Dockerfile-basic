@@ -1,0 +1,6 @@
+FROM huggingface/transformers-pytorch-gpu
+WORKDIR /app
+COPY cluster_setup/serve_basic.py .
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT []
+CMD ["python3", "/app/serve_basic.py"]

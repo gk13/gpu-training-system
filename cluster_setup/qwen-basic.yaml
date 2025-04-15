@@ -1,0 +1,35 @@
+# cluster_setup/qwen-basic.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwen-basic
+  namespace: training
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: qwen-basic
+  template:
+    metadata:
+      labels:
+        app: qwen-basic
+    spec:
+      containers:
+      - name: qwen
+        image: gcr.io/gpu-distributed-training/qwen-basic:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: model-storage
+          mountPath: /app/qwen_model
+      initContainers:
+      - name: model-copier
+        image: google/cloud-sdk:slim
+        command: ["sh", "-c", "gsutil -m cp -r gs://gpu-training-uied-data-gk-2025/qwen_model/* /model/ || echo 'Copy failed'"]
+        volumeMounts:
+        - name: model-storage
+          mountPath: /model
+      volumes:
+      - name: model-storage
+        emptyDir: {}
